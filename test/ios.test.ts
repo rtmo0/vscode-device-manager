@@ -3,6 +3,7 @@ import * as assert from 'node:assert/strict';
 import { AFC_HEADER_SIZE, AfcOp, cString, decodeHeader, encodePacket, parseFileInfo, parseKeyValues, parseStrings } from '../src/ios/afc';
 import { resolveIosPath } from '../src/ios/paths';
 import { decodePlist, encodePlist } from '../src/ios/plist';
+import { formatSyslogLine, splitSyslog } from '../src/ios/syslog';
 import { readZip } from '../src/unzip';
 
 // plistlib.dumps(..., fmt=FMT_BINARY) from Python, so the parser is checked against Apple's format, not against itself.
@@ -136,4 +137,13 @@ test('readZip inflates entries and keeps Unix modes', () => {
   );
   assert.equal(entries[0].read().toString(), '#!/bin/sh\necho adb\n'.repeat(20));
   assert.equal(entries[1].read().toString(), 'notice');
+});
+
+test('syslog lines are split on "\\n\\0" across chunks and colored by level', () => {
+  let state = splitSyslog('', 'Oct 22 18:40:12 iPhone kernel[0] <Notice>: one\n\0Oct 22 18:40:13 iPhone app[57] <Err');
+  assert.deepEqual(state.lines, ['Oct 22 18:40:12 iPhone kernel[0] <Notice>: one']);
+  state = splitSyslog(state.pending, 'or>: two\n\0');
+  assert.deepEqual(state, { lines: ['Oct 22 18:40:13 iPhone app[57] <Error>: two'], pending: '' });
+  assert.equal(formatSyslogLine('x <Error>: boom'), '\x1b[31mx <Error>: boom\x1b[0m');
+  assert.equal(formatSyslogLine('x <Notice>: fine'), 'x <Notice>: fine');
 });

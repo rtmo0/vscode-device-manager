@@ -4,6 +4,7 @@ import {
   basename,
   dirname,
   joinPath,
+  parseAndroidInfo,
   parseConnectResult,
   parseDevices,
   parseMdnsServices,
@@ -102,4 +103,29 @@ test('path helpers', () => {
   assert.equal(dirname('/sdcard'), '/');
   assert.equal(basename('/sdcard/DCIM/'), 'DCIM');
   assert.equal(basename('/'), '/');
+});
+
+test('parseAndroidInfo reads version, battery and free space', () => {
+  const output = [
+    'release=14',
+    'manufacturer=Google',
+    'Current Battery Service state:',
+    '  AC powered: false',
+    '  USB powered: true',
+    '  Wireless powered: false',
+    '  status: 2',
+    '  health: 2',
+    '  level: 85',
+    '  scale: 100',
+    '/dev/block/dm-46  115092172 63215984 51745732  55% /data'
+  ].join('\n');
+  assert.deepEqual(parseAndroidInfo(output), {
+    os: 'Android 14',
+    manufacturer: 'Google',
+    battery: 85,
+    charging: true,
+    storageTotal: 115092172 * 1024,
+    storageFree: 51745732 * 1024
+  });
+  assert.deepEqual(parseAndroidInfo('release=\nmanufacturer=\n'), { manufacturer: undefined });
 });

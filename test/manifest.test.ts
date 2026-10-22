@@ -24,7 +24,7 @@ test('menus refer to declared commands or view focus commands', () => {
 
 test('settings read by the code are declared', () => {
   const properties = Object.keys(manifest.contributes.configuration.properties);
-  assert.deepEqual(properties.sort(), ['mobile-device-manager.adbPath', 'mobile-device-manager.android.rootPath']);
+  assert.deepEqual(properties.sort(), ['mobile-device-manager.adbPath', 'mobile-device-manager.android.autoReconnect', 'mobile-device-manager.android.rootPath']);
 });
 
 test('the manifest uses only characters the Marketplace accepts', () => {

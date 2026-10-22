@@ -4,12 +4,12 @@ import { AndroidDevice, MdnsService, parseConnectResult, parsePairResult } from 
 import { DevicesTree } from '../views/devicesTree';
 import { delay, notify, withProgress } from '../ui';
 
-const RECENT_KEY = 'android.recentAddresses';
+export const RECENT_KEY = 'android.recentAddresses';
 const RECENT_LIMIT = 10;
 const TCPIP_PORT = 5555;
 const ADDRESS_PATTERN = /^(\[[0-9a-f:]+\]|[\w.-]+):\d{1,5}$/i;
 
-type Action = 'address' | 'pair' | 'usb' | 'ios';
+type Action = 'address' | 'pair' | 'qr' | 'usb' | 'ios';
 interface Choice extends vscode.QuickPickItem {
   address?: string;
   action?: Action;
@@ -19,12 +19,12 @@ function validateAddress(value: string): string | undefined {
   return ADDRESS_PATTERN.test(value.trim()) ? undefined : 'Enter IP address and port, for example 192.168.1.23:37123';
 }
 
-function remember(state: vscode.Memento, address: string): Thenable<void> {
+export function remember(state: vscode.Memento, address: string): Thenable<void> {
   const recent = state.get<string[]>(RECENT_KEY, []).filter((a) => a !== address);
   return state.update(RECENT_KEY, [address, ...recent].slice(0, RECENT_LIMIT));
 }
 
-async function connectTo(adb: Adb, tree: DevicesTree, state: vscode.Memento, address: string): Promise<boolean> {
+export async function connectTo(adb: Adb, tree: DevicesTree, state: vscode.Memento, address: string): Promise<boolean> {
   const result = parseConnectResult(await withProgress(`Connecting to ${address}…`, () => adb.connect(address)));
   await tree.refresh();
   if (result.ok) {
@@ -47,7 +47,7 @@ async function connectTo(adb: Adb, tree: DevicesTree, state: vscode.Memento, add
 }
 
 /** Quick pick with discovered devices, recent addresses and the other ways to connect. */
-export async function connect(adb: Adb, tree: DevicesTree, state: vscode.Memento, ios: () => Promise<void>): Promise<void> {
+export async function connect(adb: Adb, tree: DevicesTree, state: vscode.Memento, handlers: { ios: () => Promise<void>; qr: () => Promise<void> }): Promise<void> {
   const connected = new Set(tree.devices.map((d) => d.serial));
   const usb = tree.devices.filter((d) => d.transport === 'usb' && d.state === 'device');
   const services = await adb.mdnsServices();
@@ -65,7 +65,8 @@ export async function connect(adb: Adb, tree: DevicesTree, state: vscode.Memento
   }
   items.push({ label: '', kind: vscode.QuickPickItemKind.Separator });
   items.push({ label: '$(edit) Enter IP Address and Port…', detail: 'Developer options → Wireless debugging shows them on the device', action: 'address' });
-  items.push({ label: '$(key) Pair with Pairing Code…', detail: 'First connection on Android 11 or newer', action: 'pair' });
+  items.push({ label: '$(device-camera) Pair with QR Code…', detail: 'First connection on Android 11 or newer: scan the code with the phone', action: 'qr' });
+  items.push({ label: '$(key) Pair with Pairing Code…', detail: 'The same with a six-digit code', action: 'pair' });
   if (usb.length) {
     items.push({ label: '$(plug) Switch USB Device to Wi-Fi…', detail: `adb tcpip ${TCPIP_PORT}, works on any Android version`, action: 'usb' });
   }
@@ -85,8 +86,10 @@ export async function connect(adb: Adb, tree: DevicesTree, state: vscode.Memento
     await pair(adb, tree, state, services);
   } else if (choice?.action === 'usb') {
     await switchToWifi(adb, tree, state);
+  } else if (choice?.action === 'qr') {
+    await handlers.qr();
   } else if (choice?.action === 'ios') {
-    await ios();
+    await handlers.ios();
   }
 }
 
@@ -154,7 +157,7 @@ export async function pair(adb: Adb, tree: DevicesTree, state: vscode.Memento, k
   }
 }
 
-async function waitForDevice(tree: DevicesTree, match: (device: AndroidDevice) => boolean, timeout = 6000): Promise<AndroidDevice | undefined> {
+export async function waitForDevice(tree: DevicesTree, match: (device: AndroidDevice) => boolean, timeout = 6000): Promise<AndroidDevice | undefined> {
   for (const end = Date.now() + timeout; Date.now() < end; await delay(1000)) {
     await tree.refresh();
     const device = tree.devices.find((d) => d.transport === 'wifi' && d.state === 'device' && match(d));

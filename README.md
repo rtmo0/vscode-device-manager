@@ -17,10 +17,13 @@ Open **Devices** in the Activity Bar and press **Connect over Wi-Fi** (the anten
 - **Found on the network** — devices with Wireless debugging turned on that adb discovered through mDNS. One click connects.
 - **Recent** — addresses you connected to before.
 - **Enter IP Address and Port…** — the address shown under Developer options → Wireless debugging.
-- **Pair with Pairing Code…** — the first connection on Android 11 and newer: on the device choose *Pair device with pairing code*, pick it in the list (or type the address) and enter the six-digit code. Once paired, the device connects by itself.
+- **Pair with QR Code…** — the first connection on Android 11 and newer, as in Android Studio: a QR code opens in VS Code, scan it on the phone under Wireless debugging → *Pair device with QR code*, and the device is paired and connected.
+- **Pair with Pairing Code…** — the same with a six-digit code: on the device choose *Pair device with pairing code*, pick it in the list (or type the address) and enter the six-digit code. Once paired, the device connects by itself.
 - **Switch USB Device to Wi-Fi…** — for any Android version: plug the device in once, the extension runs `adb tcpip 5555`, finds the Wi-Fi address and connects. The cable can be unplugged afterwards.
 
-Each device shows how it is connected (Wi-Fi, USB, emulator) and why it is not usable (*allow USB debugging on the device*, *offline*). **Disconnect** drops a Wi-Fi connection.
+Each device shows its Android version, connection (Wi-Fi, USB, emulator) and battery level, with free storage in the tooltip, or why it is not usable (*allow USB debugging on the device*, *offline*). **Disconnect** drops a Wi-Fi connection.
+
+Recently used devices are reconnected automatically when they come back on the network (`mobile-device-manager.android.autoReconnect`); a device you disconnect yourself stays disconnected.
 
 ## iPhone and iPad over Wi-Fi
 
@@ -36,6 +39,12 @@ Under the device:
 iOS does not expose anything else: no system files and no data of apps that do not share files. Locked devices show *unlock the device*.
 
 macOS has everything built in. Windows needs the [Apple Devices](https://apps.microsoft.com/detail/9np83lwlpz9k) app (or iTunes) for its USB driver; Linux needs `usbmuxd` (`sudo apt install usbmuxd`).
+
+## Apps, screenshots and logs
+
+- **Install App…** installs `.apk` files on Android and `.ipa` files on iOS — or drop them on the device in the Devices view. An `.ipa` must be signed for that device (development, ad hoc or enterprise).
+- **Take Screenshot** (Android) saves a PNG of the screen and opens it.
+- **Show Device Log** opens `logcat` for Android, or the iOS system log colored by level and filtered by text, in a terminal.
 
 ## Files
 
@@ -59,6 +68,7 @@ Expand an Android device to browse its shared storage (`/sdcard`, change it with
 |---|---|---|
 | `mobile-device-manager.adbPath` | *(auto)* | Path to `adb`. |
 | `mobile-device-manager.android.rootPath` | `/sdcard` | Folder shown under each Android device. |
+| `mobile-device-manager.android.autoReconnect` | `true` | Reconnect recently used Android devices when they return to the network. |
 
 ## Development
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Pair with QR Code (Android 11+): scan the code from Wireless debugging, as in Android Studio.
+- Install App: `.apk` on Android, `.ipa` on iOS (installation_proxy), also by dropping files on a device.
+- Take Screenshot for Android devices.
+- Show Device Log: `logcat` for Android, the iOS system log (syslog_relay) colored by level with a text filter.
+- Device details: OS version and battery in the Devices view, free storage in the tooltip.
+- Recently used Android devices reconnect automatically when they come back on the network (`mobile-device-manager.android.autoReconnect`).
+
 ## 0.1.1
 
 - Manifest uses plain ASCII hyphens: the Marketplace rejected the non-breaking hyphen in "Wi-Fi" as suspicious content.

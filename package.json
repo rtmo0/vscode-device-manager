@@ -2,7 +2,7 @@
   "name": "mobile-device-manager",
   "displayName": "Mobile Device Manager — Android & iOS over Wi-Fi",
   "publisher": "samarin-aa-aka-rtm00",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Connect Android and iOS devices over Wi-Fi, browse their storage, open device files in the editor and copy files both ways with drag and drop. Nothing to install: iOS talks to the system's usbmuxd directly, adb is downloaded on first use.",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -71,7 +71,7 @@
     "viewsWelcome": [
       {
         "view": "mobile-device-manager.devices",
-        "contents": "No devices are connected.\n[Connect over Wi-Fi](command:mobile-device-manager.connect)\nAndroid 11+: turn on Developer options → Wireless debugging and pair with the code. Older Android: connect by USB once and use Switch USB Device to Wi-Fi.\niPhone and iPad: connect by USB once, tap Trust, then Enable Wi-Fi Connection. [How to connect an iPhone](command:mobile-device-manager.iosHelp)",
+        "contents": "No devices are connected.\n[Connect over Wi-Fi](command:mobile-device-manager.connect)\n[Pair Android with QR Code](command:mobile-device-manager.pairQr)\nAndroid 11+: turn on Developer options → Wireless debugging and pair with the QR code. Older Android: connect by USB once and use Switch USB Device to Wi-Fi.\niPhone and iPad: connect by USB once, tap Trust, then Enable Wi-Fi Connection. [How to connect an iPhone](command:mobile-device-manager.iosHelp)",
         "when": "!mobile-device-manager.hasDevices"
       }
     ],
@@ -87,6 +87,12 @@
         "title": "Connect over Wi-Fi…",
         "category": "Mobile Device Manager",
         "icon": "$(radio-tower)"
+      },
+      {
+        "command": "mobile-device-manager.pairQr",
+        "title": "Pair with QR Code…",
+        "category": "Mobile Device Manager",
+        "icon": "$(device-camera)"
       },
       {
         "command": "mobile-device-manager.pair",
@@ -122,6 +128,24 @@
         "title": "Download Android Platform-Tools (adb)",
         "category": "Mobile Device Manager",
         "icon": "$(cloud-download)"
+      },
+      {
+        "command": "mobile-device-manager.installApp",
+        "title": "Install App…",
+        "category": "Mobile Device Manager",
+        "icon": "$(package)"
+      },
+      {
+        "command": "mobile-device-manager.screenshot",
+        "title": "Take Screenshot",
+        "category": "Mobile Device Manager",
+        "icon": "$(device-camera)"
+      },
+      {
+        "command": "mobile-device-manager.showLogs",
+        "title": "Show Device Log",
+        "category": "Mobile Device Manager",
+        "icon": "$(output)"
       },
       {
         "command": "mobile-device-manager.addToWorkspace",
@@ -233,6 +257,18 @@
         {
           "command": "mobile-device-manager.enableIosWifi",
           "when": "mobile-device-manager.hasDevices"
+        },
+        {
+          "command": "mobile-device-manager.installApp",
+          "when": "mobile-device-manager.hasDevices"
+        },
+        {
+          "command": "mobile-device-manager.screenshot",
+          "when": "mobile-device-manager.hasDevices"
+        },
+        {
+          "command": "mobile-device-manager.showLogs",
+          "when": "mobile-device-manager.hasDevices"
         }
       ],
       "view/title": [
@@ -242,7 +278,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "mobile-device-manager.pair",
+          "command": "mobile-device-manager.pairQr",
           "when": "view == mobile-device-manager.devices",
           "group": "navigation@2"
         },
@@ -250,6 +286,11 @@
           "command": "mobile-device-manager.refresh",
           "when": "view == mobile-device-manager.devices",
           "group": "navigation@3"
+        },
+        {
+          "command": "mobile-device-manager.pair",
+          "when": "view == mobile-device-manager.devices",
+          "group": "1_connect@0"
         },
         {
           "command": "mobile-device-manager.switchToWifi",
@@ -356,7 +397,22 @@
         {
           "command": "mobile-device-manager.copyPath",
           "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder|folder-root)$/",
-          "group": "5_copy@1"
+          "group": "6_copy@1"
+        },
+        {
+          "command": "mobile-device-manager.installApp",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$/",
+          "group": "3_transfer@0"
+        },
+        {
+          "command": "mobile-device-manager.screenshot",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-android-(wifi|usb|emulator)$/",
+          "group": "5_tools@1"
+        },
+        {
+          "command": "mobile-device-manager.showLogs",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$/",
+          "group": "5_tools@2"
         }
       ]
     },
@@ -373,6 +429,11 @@
           "type": "string",
           "default": "/sdcard",
           "markdownDescription": "Folder shown under each Android device and opened by **Open in Explorer**. `/sdcard` is the shared internal storage; `/` shows the whole file system (most of it needs root)."
+        },
+        "mobile-device-manager.android.autoReconnect": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Reconnect recently used Android devices over Wi-Fi when they come back on the network (while the Devices view is open). Devices you **Disconnect** stay disconnected until you connect them again."
         }
       }
     }
@@ -395,5 +456,8 @@
     "@vscode/vsce": "^4.0.0",
     "esbuild": "^0.28.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }

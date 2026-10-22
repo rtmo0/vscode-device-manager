@@ -140,6 +140,19 @@ export class Adb {
     return this.run(['-s', serial, 'pull', ...remotes, local], { token });
   }
 
+  /** `adb install -r`; adb reports failures such as INSTALL_FAILED_… in its output. */
+  async install(serial: string, apk: string, token?: vscode.CancellationToken): Promise<void> {
+    const output = await this.run(['-s', serial, 'install', '-r', apk], { allowFailure: true, token });
+    if (!/^Success/m.test(output)) {
+      throw new AdbError(/Failure \[[^\]]+\]|failed.*$/im.exec(output)?.[0] ?? (output.trim() || 'adb install failed'), output);
+    }
+  }
+
+  /** PNG of the current screen. */
+  screenshot(serial: string): Promise<Buffer> {
+    return this.exec(['-s', serial, 'exec-out', 'screencap', '-p'], { timeout: 30000 });
+  }
+
   /** Command line that opens an interactive device shell, for a terminal. */
   shellArgs(serial: string, cwd?: string): string[] {
     return cwd ? ['-s', serial, 'shell', '-t', `cd ${shellQuote(cwd)} && exec sh`] : ['-s', serial, 'shell'];

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Adb, AdbNotFoundError } from '../android/adb';
 import { ANDROID_SCHEME, androidUri } from '../android/fileSystem';
-import { AndroidDevice } from '../android/parse';
+import { ANDROID_INFO_COMMAND, AndroidDevice, DeviceInfo, parseAndroidInfo } from '../android/parse';
 import { DeviceFileSystem, DirEntry } from '../deviceFs';
 import { IosDevice, IosDevices } from '../ios/devices';
 import { iosUri } from '../ios/fileSystem';
@@ -11,6 +11,7 @@ import { errorMessage, formatSize } from '../ui';
 export const DEVICES_VIEW_ID = 'mobile-device-manager.devices';
 const TREE_MIME = `application/vnd.code.tree.${DEVICES_VIEW_ID}`;
 const POLL_INTERVAL = 3000;
+const INFO_TTL = 60000;
 
 export interface AndroidDeviceNode {
   kind: 'device';
@@ -86,6 +87,30 @@ const IOS_HINTS: Record<string, string> = {
 
 const TRANSPORT_LABELS = { wifi: 'Wi-Fi', usb: 'USB', emulator: 'Emulator' };
 
+function batteryText(info?: DeviceInfo): string | undefined {
+  return info?.battery === undefined ? undefined : `${info.battery}%${info.charging ? ' charging' : ''}`;
+}
+
+function infoLines(info?: DeviceInfo): string[] {
+  if (!info) {
+    return [];
+  }
+  const lines: string[] = [];
+  if (info.os) {
+    lines.push(`System: ${info.os}`);
+  }
+  if (info.manufacturer) {
+    lines.push(`Manufacturer: ${info.manufacturer}`);
+  }
+  if (info.battery !== undefined) {
+    lines.push(`Battery: ${batteryText(info)}`);
+  }
+  if (info.storageTotal) {
+    lines.push(`Storage: ${info.storageFree !== undefined ? `${formatSize(info.storageFree)} free of ` : ''}${formatSize(info.storageTotal)}`);
+  }
+  return lines;
+}
+
 /** Android devices known to adb and iOS devices known to usbmuxd, with their files. */
 export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDragAndDropController<Node>, vscode.Disposable {
   private readonly changed = new vscode.EventEmitter<Node | undefined>();
@@ -99,6 +124,7 @@ export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDr
   private androidError: unknown;
   private iosError: string | undefined;
   private iosLogged: string | undefined;
+  private readonly androidInfo = new Map<string, { at: number; info?: DeviceInfo }>();
   private snapshot = '';
   private timer: NodeJS.Timeout | undefined;
   private readonly disposables: vscode.Disposable[] = [];
@@ -230,13 +256,33 @@ export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDr
     return item;
   }
 
+  /** Version, battery and storage of an Android device, re-read in the background at most once a minute. */
+  private androidDetails(device: AndroidDevice): DeviceInfo | undefined {
+    const cached = this.androidInfo.get(device.serial);
+    if (device.state === 'device' && (!cached || Date.now() - cached.at > INFO_TTL)) {
+      this.androidInfo.set(device.serial, { at: Date.now(), info: cached?.info });
+      void this.adb
+        .shell(device.serial, ANDROID_INFO_COMMAND, { allowFailure: true, timeout: 15000 })
+        .then((output) => {
+          const info = parseAndroidInfo(output);
+          if (JSON.stringify(info) !== JSON.stringify(cached?.info)) {
+            this.androidInfo.set(device.serial, { at: Date.now(), info });
+            this.changed.fire(undefined);
+          }
+        })
+        .catch((error) => this.output.debug(`${device.serial} details: ${errorMessage(error)}`));
+    }
+    return cached?.info;
+  }
+
   private androidItem(device: AndroidDevice): vscode.TreeItem {
     const online = device.state === 'device';
+    const info = this.androidDetails(device);
     const item = new vscode.TreeItem(device.model ?? device.serial, online ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
     item.id = `android:${device.serial}`;
-    item.description = ['Android', TRANSPORT_LABELS[device.transport], ANDROID_HINTS[device.state]].filter(Boolean).join(' · ');
+    item.description = [info?.os ?? 'Android', TRANSPORT_LABELS[device.transport], batteryText(info), ANDROID_HINTS[device.state]].filter(Boolean).join(' · ');
     item.tooltip = new vscode.MarkdownString(
-      [`**${device.model ?? device.serial}**`, `Serial: \`${device.serial}\``, `Connection: ${TRANSPORT_LABELS[device.transport]}`, `State: ${device.state}`].join('\n\n')
+      [`**${device.model ?? device.serial}**`, ...infoLines(info), `Serial: \`${device.serial}\``, `Connection: ${TRANSPORT_LABELS[device.transport]}`, `State: ${device.state}`].join('\n\n')
     );
     item.iconPath = online
       ? new vscode.ThemeIcon(device.transport === 'wifi' ? 'radio-tower' : device.transport === 'emulator' ? 'vm' : 'device-mobile')
@@ -249,9 +295,18 @@ export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDr
     const ready = device.state === 'ready';
     const item = new vscode.TreeItem(device.name ?? device.udid, ready ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
     item.id = `ios:${device.udid}`;
-    item.description = [device.version ? `iOS ${device.version}` : 'iOS', TRANSPORT_LABELS[device.transport], IOS_HINTS[device.state]].filter(Boolean).join(' · ');
+    item.description = [device.version ? `iOS ${device.version}` : 'iOS', TRANSPORT_LABELS[device.transport], batteryText(device.details), IOS_HINTS[device.state]]
+      .filter(Boolean)
+      .join(' · ');
     item.tooltip = new vscode.MarkdownString(
-      [`**${device.name ?? device.udid}**`, device.productType && `Model: ${device.productType}`, `UDID: \`${device.udid}\``, `Connection: ${TRANSPORT_LABELS[device.transport]}`, device.error]
+      [
+        `**${device.name ?? device.udid}**`,
+        device.productType && `Model: ${device.productType}`,
+        ...infoLines(device.details).filter((line) => !line.startsWith('System')),
+        `UDID: \`${device.udid}\``,
+        `Connection: ${TRANSPORT_LABELS[device.transport]}`,
+        device.error
+      ]
         .filter(Boolean)
         .join('\n\n')
     );
@@ -317,6 +372,12 @@ export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDr
       return;
     }
     const uris = await droppedUris(data);
+    // .apk / .ipa files dropped on the device itself are installed rather than copied.
+    const appExt = target?.kind === 'device' ? (target.platform === 'android' ? '.apk' : '.ipa') : undefined;
+    if (appExt && uris.length && uris.every((u) => u.path.toLowerCase().endsWith(appExt))) {
+      await vscode.commands.executeCommand('mobile-device-manager.installApp', target, uris);
+      return;
+    }
     if (uris.length && !token.isCancellationRequested) {
       await vscode.commands.executeCommand('mobile-device-manager.upload', folder, uris);
     }

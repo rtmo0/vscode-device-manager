@@ -16,12 +16,16 @@ Goal: a device manager in VS Code for phones and tablets on the same Wi-Fi netwo
 - mDNS discovery, pairing code, `adb connect`, `adb tcpip` from USB, recent addresses.
 - `android://` FileSystemProvider; Open in Explorer; upload, download, new folder, rename, delete, drag and drop.
 
-### 2. Android polish
-- Pair with QR code (`WIFI:T:ADB;S:<name>;P:<password>;;` shown in a webview, then `adb pair` to the advertised service).
-- Reconnect automatically to recent devices when they appear on the network.
+### 2. Devices toolbox — 0.2.0
+- Pair with QR code (`WIFI:T:ADB;S:<name>;P:<password>;;` in a webview, then `adb pair` to the service the phone advertises).
+- Automatic reconnect of recent Android devices.
+- Install `.apk` / `.ipa` (also by drag and drop), Android screenshots, logcat and the iOS system log in a terminal.
+- OS version, battery and storage in the Devices view.
+
+### 2a. Android next
 - Transfer progress with bytes and speed (parse `adb push/pull` progress), cancellation per file.
 - Storage roots per device: internal storage, SD card (`/storage/XXXX-XXXX`), `/data/local/tmp`; app data through `run-as` for debuggable apps.
-- Install APK (drop an `.apk` on a device), screenshot and screen recording into the workspace, logcat in an output channel.
+- Screen recording; app list with uninstall and clear data.
 
 ### 3. iOS — 0.1.0
 - Devices from usbmuxd (USB and Wi-Fi), name and iOS version from lockdown; states for not trusted and locked devices.
@@ -31,7 +35,8 @@ Goal: a device manager in VS Code for phones and tablets on the same Wi-Fi netwo
 ### 3a. iOS next
 - Pairing from the extension (Trust dialog) without Finder / Apple Devices: needs certificate generation for the pair record.
 - Photos: HEIC preview, export to JPEG.
-- Install `.ipa` (installation_proxy), screenshots, syslog.
+- Screenshots (need the developer disk image or, on iOS 17+, a developer tunnel).
+- App list with uninstall.
 - Developer services on iOS 17+ (RemoteXPC tunnel) — only if needed; files do not require them.
 
 ### 4. Ideas

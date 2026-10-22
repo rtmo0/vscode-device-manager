@@ -136,3 +136,40 @@ export function dirname(path: string): string {
 export function basename(path: string): string {
   return path.replace(/\/+$/, '').split('/').pop() || '/';
 }
+
+export interface DeviceInfo {
+  os?: string;
+  manufacturer?: string;
+  /** Percent. */
+  battery?: number;
+  charging?: boolean;
+  /** Bytes. */
+  storageTotal?: number;
+  storageFree?: number;
+}
+
+/** One round trip for version, battery and free space; parsed by parseAndroidInfo. */
+export const ANDROID_INFO_COMMAND =
+  'echo "release=$(getprop ro.build.version.release)"; echo "manufacturer=$(getprop ro.product.manufacturer)"; dumpsys battery 2>/dev/null; df -k /data 2>/dev/null | tail -n 1';
+
+export function parseAndroidInfo(output: string): DeviceInfo {
+  const info: DeviceInfo = {};
+  const release = /^release=(.+)$/m.exec(output)?.[1]?.trim();
+  if (release) {
+    info.os = `Android ${release}`;
+  }
+  info.manufacturer = /^manufacturer=(.+)$/m.exec(output)?.[1]?.trim() || undefined;
+  const level = /^\s*level: (\d+)/m.exec(output);
+  if (level) {
+    info.battery = Number(level[1]);
+    // BatteryManager: 2 = charging, 5 = full while plugged in.
+    const status = Number(/^\s*status: (\d+)/m.exec(output)?.[1]);
+    info.charging = status === 2 || /^\s*(AC|USB|Wireless) powered: true/m.test(output);
+  }
+  const df = /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+%\s+\/data\s*$/m.exec(output);
+  if (df) {
+    info.storageTotal = Number(df[1]) * 1024;
+    info.storageFree = Number(df[3]) * 1024;
+  }
+  return info;
+}
