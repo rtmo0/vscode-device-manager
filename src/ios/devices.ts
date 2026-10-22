@@ -47,7 +47,7 @@ export class IosDevices implements vscode.Disposable {
     this.afcClients.clear();
   }
 
-  /** Lists devices; a device connected by USB and Wi‑Fi at once is shown once, through USB. */
+  /** Lists devices; a device connected by USB and Wi-Fi at once is shown once, through USB. */
   async list(): Promise<IosDevice[]> {
     const entries = await listMuxDevices();
     const byUdid = new Map<string, MuxDevice>();
@@ -143,7 +143,7 @@ export class IosDevices implements vscode.Disposable {
     return (await this.listApps(udid).catch(() => [])).find((a) => a.bundleId === bundleId)?.name;
   }
 
-  /** Lets the device be reached over Wi‑Fi, like "Show this iPhone when on Wi‑Fi" in Finder. */
+  /** Lets the device be reached over Wi-Fi, like "Show this iPhone when on Wi-Fi" in Finder. */
   async enableWifi(udid: string): Promise<void> {
     await withLockdown(this.muxDevice(udid), (lockdown) => lockdown.setValue('EnableWifiConnections', true, 'com.apple.mobile.wireless_lockdown'));
   }

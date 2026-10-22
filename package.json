@@ -1,9 +1,9 @@
 {
   "name": "mobile-device-manager",
-  "displayName": "Mobile Device Manager — Android & iOS over Wi‑Fi",
+  "displayName": "Mobile Device Manager — Android & iOS over Wi-Fi",
   "publisher": "samarin-aa-aka-rtm00",
-  "version": "0.1.0",
-  "description": "Connect Android and iOS devices over Wi‑Fi, browse their storage, open device files in the editor and copy files both ways with drag and drop. Nothing to install: iOS talks to the system's usbmuxd directly, adb is downloaded on first use.",
+  "version": "0.1.1",
+  "description": "Connect Android and iOS devices over Wi-Fi, browse their storage, open device files in the editor and copy files both ways with drag and drop. Nothing to install: iOS talks to the system's usbmuxd directly, adb is downloaded on first use.",
   "license": "MIT",
   "icon": "media/icon.png",
   "repository": {
@@ -71,7 +71,7 @@
     "viewsWelcome": [
       {
         "view": "mobile-device-manager.devices",
-        "contents": "No devices are connected.\n[Connect over Wi‑Fi](command:mobile-device-manager.connect)\nAndroid 11+: turn on Developer options → Wireless debugging and pair with the code. Older Android: connect by USB once and use Switch USB Device to Wi‑Fi.\niPhone and iPad: connect by USB once, tap Trust, then Enable Wi‑Fi Connection. [How to connect an iPhone](command:mobile-device-manager.iosHelp)",
+        "contents": "No devices are connected.\n[Connect over Wi-Fi](command:mobile-device-manager.connect)\nAndroid 11+: turn on Developer options → Wireless debugging and pair with the code. Older Android: connect by USB once and use Switch USB Device to Wi-Fi.\niPhone and iPad: connect by USB once, tap Trust, then Enable Wi-Fi Connection. [How to connect an iPhone](command:mobile-device-manager.iosHelp)",
         "when": "!mobile-device-manager.hasDevices"
       }
     ],
@@ -84,7 +84,7 @@
       },
       {
         "command": "mobile-device-manager.connect",
-        "title": "Connect over Wi‑Fi…",
+        "title": "Connect over Wi-Fi…",
         "category": "Mobile Device Manager",
         "icon": "$(radio-tower)"
       },
@@ -96,7 +96,7 @@
       },
       {
         "command": "mobile-device-manager.switchToWifi",
-        "title": "Switch Android USB Device to Wi‑Fi",
+        "title": "Switch Android USB Device to Wi-Fi",
         "category": "Mobile Device Manager",
         "icon": "$(plug)"
       },
@@ -108,7 +108,7 @@
       },
       {
         "command": "mobile-device-manager.enableIosWifi",
-        "title": "Enable Wi‑Fi Connection",
+        "title": "Enable Wi-Fi Connection",
         "category": "Mobile Device Manager",
         "icon": "$(radio-tower)"
       },

@@ -112,5 +112,5 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  // Wi‑Fi connections belong to the adb server and usbmuxd and outlive the extension.
+  // Wi-Fi connections belong to the adb server and usbmuxd and outlive the extension.
 }

@@ -195,7 +195,7 @@ export class AfcClient {
     }
     const packet = this.nextPacket++;
     const reply = new Promise<AfcPacket>((resolve, reject) => this.pending.set(packet, { resolve, reject }));
-    // A Wi‑Fi connection can die without a reset; drop it so the next request reconnects.
+    // A Wi-Fi connection can die without a reset; drop it so the next request reconnects.
     const timer = setTimeout(() => this.socket.destroy(new Error('The device stopped responding.')), OPERATION_TIMEOUT);
     this.socket.write(encodePacket(op, packet, headerData, payload));
     const result = await reply.finally(() => clearTimeout(timer));

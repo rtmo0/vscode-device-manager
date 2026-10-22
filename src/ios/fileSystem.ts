@@ -74,7 +74,7 @@ export class IosFileSystem implements vscode.FileSystemProvider {
     return location;
   }
 
-  /** Runs an AFC action, reconnecting once if the cached connection dropped (Wi‑Fi sleep, device relock). */
+  /** Runs an AFC action, reconnecting once if the cached connection dropped (Wi-Fi sleep, device relock). */
   private async withAfc<T>(uri: vscode.Uri, action: (afc: AfcClient, path: string, location: Extract<IosLocation, { kind: 'afc' }>) => Promise<T>): Promise<T> {
     const location = this.locate(uri);
     if (location.kind !== 'afc') {

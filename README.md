@@ -2,7 +2,7 @@
 
 [![Support on Boosty](https://img.shields.io/badge/Boosty-support-F15F2C?logo=boosty&logoColor=white)](https://boosty.to/rtm00)
 
-Mobile Device Manager connects Android and iOS devices to VS Code over Wi‑Fi and turns their storage into a normal folder: browse it, open and edit device files in the editor, and copy files both ways with drag and drop.
+Mobile Device Manager connects Android and iOS devices to VS Code over Wi-Fi and turns their storage into a normal folder: browse it, open and edit device files in the editor, and copy files both ways with drag and drop.
 
 **Nothing to install.** iOS support talks to the usbmuxd service that ships with macOS directly (no libimobiledevice, no Python). For Android, if `adb` is not installed yet, one click downloads Google's Platform-Tools into the extension's storage.
 
@@ -10,23 +10,23 @@ Mobile Device Manager connects Android and iOS devices to VS Code over Wi‑Fi a
 
 > **Preview.** See [docs/ROADMAP.md](docs/ROADMAP.md) for what comes next.
 
-## Android: connect over Wi‑Fi
+## Android: connect over Wi-Fi
 
-Open **Devices** in the Activity Bar and press **Connect over Wi‑Fi** (the antenna button):
+Open **Devices** in the Activity Bar and press **Connect over Wi-Fi** (the antenna button):
 
 - **Found on the network** — devices with Wireless debugging turned on that adb discovered through mDNS. One click connects.
 - **Recent** — addresses you connected to before.
 - **Enter IP Address and Port…** — the address shown under Developer options → Wireless debugging.
 - **Pair with Pairing Code…** — the first connection on Android 11 and newer: on the device choose *Pair device with pairing code*, pick it in the list (or type the address) and enter the six-digit code. Once paired, the device connects by itself.
-- **Switch USB Device to Wi‑Fi…** — for any Android version: plug the device in once, the extension runs `adb tcpip 5555`, finds the Wi‑Fi address and connects. The cable can be unplugged afterwards.
+- **Switch USB Device to Wi-Fi…** — for any Android version: plug the device in once, the extension runs `adb tcpip 5555`, finds the Wi-Fi address and connects. The cable can be unplugged afterwards.
 
-Each device shows how it is connected (Wi‑Fi, USB, emulator) and why it is not usable (*allow USB debugging on the device*, *offline*). **Disconnect** drops a Wi‑Fi connection.
+Each device shows how it is connected (Wi-Fi, USB, emulator) and why it is not usable (*allow USB debugging on the device*, *offline*). **Disconnect** drops a Wi-Fi connection.
 
-## iPhone and iPad over Wi‑Fi
+## iPhone and iPad over Wi-Fi
 
 1. Connect the device with a USB cable, unlock it and tap **Trust** (on macOS open Finder if the dialog does not appear).
-2. Right-click the device in **Devices** → **Enable Wi‑Fi Connection** (the same switch as *Show this iPhone when on Wi‑Fi* in Finder).
-3. Unplug the cable. While the device is awake and on the same network, it stays in the list marked *Wi‑Fi*.
+2. Right-click the device in **Devices** → **Enable Wi-Fi Connection** (the same switch as *Show this iPhone when on Wi-Fi* in Finder).
+3. Unplug the cable. While the device is awake and on the same network, it stays in the list marked *Wi-Fi*.
 
 Under the device:
 

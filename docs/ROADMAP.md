@@ -1,6 +1,6 @@
 # Roadmap
 
-Goal: a device manager in VS Code for phones and tablets on the same Wi‑Fi network — connect without a cable, browse storage, move files both ways — for Android and iOS.
+Goal: a device manager in VS Code for phones and tablets on the same Wi-Fi network — connect without a cable, browse storage, move files both ways — for Android and iOS.
 
 ## Architecture
 
@@ -11,7 +11,7 @@ Goal: a device manager in VS Code for phones and tablets on the same Wi‑Fi net
 
 ## Milestones
 
-### 1. Android over Wi‑Fi — 0.1.0
+### 1. Android over Wi-Fi — 0.1.0
 - Device list with transport and state, polling while visible.
 - mDNS discovery, pairing code, `adb connect`, `adb tcpip` from USB, recent addresses.
 - `android://` FileSystemProvider; Open in Explorer; upload, download, new folder, rename, delete, drag and drop.
@@ -24,8 +24,8 @@ Goal: a device manager in VS Code for phones and tablets on the same Wi‑Fi net
 - Install APK (drop an `.apk` on a device), screenshot and screen recording into the workspace, logcat in an output channel.
 
 ### 3. iOS — 0.1.0
-- Devices from usbmuxd (USB and Wi‑Fi), name and iOS version from lockdown; states for not trusted and locked devices.
-- Enable Wi‑Fi Connection (`EnableWifiConnections` in `com.apple.mobile.wireless_lockdown`).
+- Devices from usbmuxd (USB and Wi-Fi), name and iOS version from lockdown; states for not trusted and locked devices.
+- Enable Wi-Fi Connection (`EnableWifiConnections` in `com.apple.mobile.wireless_lockdown`).
 - `ios://` FileSystemProvider over AFC: Media and the Documents of file-sharing apps (house_arrest `VendDocuments`), with pipelined requests.
 
 ### 3a. iOS next

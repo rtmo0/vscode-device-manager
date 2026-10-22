@@ -84,7 +84,7 @@ const IOS_HINTS: Record<string, string> = {
   error: 'not available'
 };
 
-const TRANSPORT_LABELS = { wifi: 'Wi‑Fi', usb: 'USB', emulator: 'Emulator' };
+const TRANSPORT_LABELS = { wifi: 'Wi-Fi', usb: 'USB', emulator: 'Emulator' };
 
 /** Android devices known to adb and iOS devices known to usbmuxd, with their files. */
 export class DevicesTree implements vscode.TreeDataProvider<Node>, vscode.TreeDragAndDropController<Node>, vscode.Disposable {

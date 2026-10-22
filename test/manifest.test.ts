@@ -26,3 +26,11 @@ test('settings read by the code are declared', () => {
   const properties = Object.keys(manifest.contributes.configuration.properties);
   assert.deepEqual(properties.sort(), ['mobile-device-manager.adbPath', 'mobile-device-manager.android.rootPath']);
 });
+
+test('the manifest uses only characters the Marketplace accepts', () => {
+  // The Marketplace rejects lookalike characters (such as U+2011 non-breaking hyphen) as suspicious content.
+  const allowed = new Set(['…', '—', '→']);
+  const text = readFileSync(join(root, 'package.json'), 'utf8');
+  const unusual = [...new Set([...text].filter((ch) => ch.charCodeAt(0) > 127 && !allowed.has(ch)))];
+  assert.deepEqual(unusual.map((ch) => `U+${ch.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}`), []);
+});

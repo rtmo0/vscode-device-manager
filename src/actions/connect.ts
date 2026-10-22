@@ -67,17 +67,17 @@ export async function connect(adb: Adb, tree: DevicesTree, state: vscode.Memento
   items.push({ label: '$(edit) Enter IP Address and Port…', detail: 'Developer options → Wireless debugging shows them on the device', action: 'address' });
   items.push({ label: '$(key) Pair with Pairing Code…', detail: 'First connection on Android 11 or newer', action: 'pair' });
   if (usb.length) {
-    items.push({ label: '$(plug) Switch USB Device to Wi‑Fi…', detail: `adb tcpip ${TCPIP_PORT}, works on any Android version`, action: 'usb' });
+    items.push({ label: '$(plug) Switch USB Device to Wi-Fi…', detail: `adb tcpip ${TCPIP_PORT}, works on any Android version`, action: 'usb' });
   }
 
   items.push({ label: 'iPhone and iPad', kind: vscode.QuickPickItemKind.Separator });
-  items.push({ label: '$(device-mobile) Connect iPhone or iPad over Wi‑Fi…', detail: 'Trust this computer over USB once, then enable the Wi‑Fi connection', action: 'ios' });
+  items.push({ label: '$(device-mobile) Connect iPhone or iPad over Wi-Fi…', detail: 'Trust this computer over USB once, then enable the Wi-Fi connection', action: 'ios' });
 
-  const choice = await vscode.window.showQuickPick(items, { title: 'Connect Device over Wi‑Fi', placeHolder: 'Choose a device or a way to connect' });
+  const choice = await vscode.window.showQuickPick(items, { title: 'Connect Device over Wi-Fi', placeHolder: 'Choose a device or a way to connect' });
   if (choice?.address) {
     await connectTo(adb, tree, state, choice.address);
   } else if (choice?.action === 'address') {
-    const address = await vscode.window.showInputBox({ title: 'Connect over Wi‑Fi', prompt: 'IP address and port of the device', placeHolder: '192.168.1.23:37123', validateInput: validateAddress });
+    const address = await vscode.window.showInputBox({ title: 'Connect over Wi-Fi', prompt: 'IP address and port of the device', placeHolder: '192.168.1.23:37123', validateInput: validateAddress });
     if (address) {
       await connectTo(adb, tree, state, address.trim());
     }
@@ -118,7 +118,7 @@ export async function pair(adb: Adb, tree: DevicesTree, state: vscode.Memento, k
   }
   const code = await vscode.window.showInputBox({
     title: `Pair with ${address}`,
-    prompt: 'Wi‑Fi pairing code shown on the device',
+    prompt: 'Wi-Fi pairing code shown on the device',
     placeHolder: '123456',
     validateInput: (value) => (/^\d{6}$/.test(value.trim()) ? undefined : 'The pairing code has six digits')
   });
@@ -143,7 +143,7 @@ export async function pair(adb: Adb, tree: DevicesTree, state: vscode.Memento, k
     return;
   }
   const connectAddress = await vscode.window.showInputBox({
-    title: 'Connect over Wi‑Fi',
+    title: 'Connect over Wi-Fi',
     prompt: 'Paired. Now enter the IP address and port from the Wireless debugging screen (not the pairing port).',
     value: `${host}:`,
     valueSelection: [host.length + 1, host.length + 1],
@@ -165,14 +165,14 @@ async function waitForDevice(tree: DevicesTree, match: (device: AndroidDevice) =
   return undefined;
 }
 
-/** Classic `adb tcpip 5555` for a USB device, then connects to its Wi‑Fi address. */
+/** Classic `adb tcpip 5555` for a USB device, then connects to its Wi-Fi address. */
 export async function switchToWifi(adb: Adb, tree: DevicesTree, state: vscode.Memento, device?: AndroidDevice): Promise<void> {
   if (!device) {
     const usb = tree.devices.filter((d) => d.transport === 'usb' && d.state === 'device');
     const picked =
       usb.length === 1
         ? usb[0]
-        : (await vscode.window.showQuickPick(usb.map((d) => ({ label: d.model ?? d.serial, description: d.serial, device: d })), { title: 'Switch USB Device to Wi‑Fi' }))?.device;
+        : (await vscode.window.showQuickPick(usb.map((d) => ({ label: d.model ?? d.serial, description: d.serial, device: d })), { title: 'Switch USB Device to Wi-Fi' }))?.device;
     if (!picked) {
       if (!usb.length) {
         void vscode.window.showInformationMessage('Connect the device with a USB cable and allow USB debugging first.');
@@ -184,7 +184,7 @@ export async function switchToWifi(adb: Adb, tree: DevicesTree, state: vscode.Me
   const serial = device.serial;
   const ip = await adb.wifiAddress(serial);
   if (!ip) {
-    await vscode.window.showErrorMessage(`${device.model ?? serial} has no Wi‑Fi address. Connect it to the same network as this computer.`);
+    await vscode.window.showErrorMessage(`${device.model ?? serial} has no Wi-Fi address. Connect it to the same network as this computer.`);
     return;
   }
   const address = `${ip}:${TCPIP_PORT}`;
