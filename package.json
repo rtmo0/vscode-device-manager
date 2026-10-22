@@ -1,0 +1,399 @@
+{
+  "name": "mobile-device-manager",
+  "displayName": "Mobile Device Manager — Android & iOS over Wi‑Fi",
+  "publisher": "samarin-aa-aka-rtm00",
+  "version": "0.1.0",
+  "description": "Connect Android and iOS devices over Wi‑Fi, browse their storage, open device files in the editor and copy files both ways with drag and drop. Nothing to install: iOS talks to the system's usbmuxd directly, adb is downloaded on first use.",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rtmo0/vscode-device-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rtmo0/vscode-device-manager/issues"
+  },
+  "homepage": "https://github.com/rtmo0/vscode-device-manager#readme",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other",
+    "Debuggers"
+  ],
+  "keywords": [
+    "android",
+    "ios",
+    "iphone",
+    "ipad",
+    "adb",
+    "wifi",
+    "wireless debugging",
+    "adb pair",
+    "afc",
+    "device manager",
+    "device file explorer",
+    "file transfer",
+    "phone",
+    "mobile"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onFileSystem:android",
+    "onFileSystem:ios"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mobile-device-manager",
+          "title": "Devices",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "mobile-device-manager": [
+        {
+          "id": "mobile-device-manager.devices",
+          "name": "Devices",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Mobile Device Manager"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "mobile-device-manager.devices",
+        "contents": "No devices are connected.\n[Connect over Wi‑Fi](command:mobile-device-manager.connect)\nAndroid 11+: turn on Developer options → Wireless debugging and pair with the code. Older Android: connect by USB once and use Switch USB Device to Wi‑Fi.\niPhone and iPad: connect by USB once, tap Trust, then Enable Wi‑Fi Connection. [How to connect an iPhone](command:mobile-device-manager.iosHelp)",
+        "when": "!mobile-device-manager.hasDevices"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mobile-device-manager.refresh",
+        "title": "Refresh",
+        "category": "Mobile Device Manager",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mobile-device-manager.connect",
+        "title": "Connect over Wi‑Fi…",
+        "category": "Mobile Device Manager",
+        "icon": "$(radio-tower)"
+      },
+      {
+        "command": "mobile-device-manager.pair",
+        "title": "Pair with Pairing Code…",
+        "category": "Mobile Device Manager",
+        "icon": "$(key)"
+      },
+      {
+        "command": "mobile-device-manager.switchToWifi",
+        "title": "Switch Android USB Device to Wi‑Fi",
+        "category": "Mobile Device Manager",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "mobile-device-manager.disconnect",
+        "title": "Disconnect",
+        "category": "Mobile Device Manager",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "mobile-device-manager.enableIosWifi",
+        "title": "Enable Wi‑Fi Connection",
+        "category": "Mobile Device Manager",
+        "icon": "$(radio-tower)"
+      },
+      {
+        "command": "mobile-device-manager.iosHelp",
+        "title": "How to Connect an iPhone or iPad",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.installAdb",
+        "title": "Download Android Platform-Tools (adb)",
+        "category": "Mobile Device Manager",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "mobile-device-manager.addToWorkspace",
+        "title": "Open in Explorer",
+        "category": "Mobile Device Manager",
+        "icon": "$(files)"
+      },
+      {
+        "command": "mobile-device-manager.openShell",
+        "title": "Open Device Shell",
+        "category": "Mobile Device Manager",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "mobile-device-manager.upload",
+        "title": "Upload…",
+        "category": "Mobile Device Manager",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "mobile-device-manager.download",
+        "title": "Download…",
+        "category": "Mobile Device Manager",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "mobile-device-manager.newFolder",
+        "title": "New Folder…",
+        "category": "Mobile Device Manager",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "mobile-device-manager.rename",
+        "title": "Rename…",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.delete",
+        "title": "Delete…",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.copyPath",
+        "title": "Copy Path",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.openFile",
+        "title": "Open",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.move",
+        "title": "Move",
+        "category": "Mobile Device Manager"
+      },
+      {
+        "command": "mobile-device-manager.showOutput",
+        "title": "Show Output",
+        "category": "Mobile Device Manager"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "mobile-device-manager.switchToWifi",
+          "when": "mobile-device-manager.hasDevices"
+        },
+        {
+          "command": "mobile-device-manager.disconnect",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.addToWorkspace",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.upload",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.download",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.newFolder",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.rename",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.delete",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.copyPath",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.openFile",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.move",
+          "when": "false"
+        },
+        {
+          "command": "mobile-device-manager.enableIosWifi",
+          "when": "mobile-device-manager.hasDevices"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "mobile-device-manager.connect",
+          "when": "view == mobile-device-manager.devices",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mobile-device-manager.pair",
+          "when": "view == mobile-device-manager.devices",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mobile-device-manager.refresh",
+          "when": "view == mobile-device-manager.devices",
+          "group": "navigation@3"
+        },
+        {
+          "command": "mobile-device-manager.switchToWifi",
+          "when": "view == mobile-device-manager.devices",
+          "group": "1_connect"
+        },
+        {
+          "command": "mobile-device-manager.enableIosWifi",
+          "when": "view == mobile-device-manager.devices",
+          "group": "1_connect"
+        },
+        {
+          "command": "mobile-device-manager.installAdb",
+          "when": "view == mobile-device-manager.devices",
+          "group": "8_setup"
+        },
+        {
+          "command": "mobile-device-manager.showOutput",
+          "when": "view == mobile-device-manager.devices",
+          "group": "9_output"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "mobile-device-manager.addToWorkspace",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$/",
+          "group": "inline@1"
+        },
+        {
+          "command": "mobile-device-manager.disconnect",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-android-(wifi|offline)$/",
+          "group": "inline@2"
+        },
+        {
+          "command": "mobile-device-manager.upload",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^folder(-root)?$/",
+          "group": "inline@1"
+        },
+        {
+          "command": "mobile-device-manager.download",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder|folder-root)$/",
+          "group": "inline@2"
+        },
+        {
+          "command": "mobile-device-manager.openFile",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^file$/",
+          "group": "1_open@0"
+        },
+        {
+          "command": "mobile-device-manager.addToWorkspace",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$|^folder(-root)?$/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "mobile-device-manager.openShell",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-android-(wifi|usb|emulator)$/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "mobile-device-manager.switchToWifi",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-android-usb$/",
+          "group": "2_connect@1"
+        },
+        {
+          "command": "mobile-device-manager.enableIosWifi",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-ios-usb$/",
+          "group": "2_connect@1"
+        },
+        {
+          "command": "mobile-device-manager.disconnect",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-android-(wifi|offline)$/",
+          "group": "2_connect@2"
+        },
+        {
+          "command": "mobile-device-manager.iosHelp",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-ios-offline$/",
+          "group": "2_connect@3"
+        },
+        {
+          "command": "mobile-device-manager.upload",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$|^folder(-root)?$/",
+          "group": "3_transfer@1"
+        },
+        {
+          "command": "mobile-device-manager.download",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder|folder-root)$/",
+          "group": "3_transfer@2"
+        },
+        {
+          "command": "mobile-device-manager.newFolder",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^device-(android-(wifi|usb|emulator)|ios-(usb|wifi))$|^folder(-root)?$/",
+          "group": "4_edit@1"
+        },
+        {
+          "command": "mobile-device-manager.rename",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder)$/",
+          "group": "4_edit@2"
+        },
+        {
+          "command": "mobile-device-manager.delete",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder)$/",
+          "group": "4_edit@3"
+        },
+        {
+          "command": "mobile-device-manager.copyPath",
+          "when": "view == mobile-device-manager.devices && viewItem =~ /^(file|folder|folder-root)$/",
+          "group": "5_copy@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Mobile Device Manager",
+      "properties": {
+        "mobile-device-manager.adbPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "Path to the `adb` executable. Empty: `$ANDROID_HOME/platform-tools`, the default Android SDK location, Homebrew, then the copy downloaded by **Download Android Platform-Tools**, then `adb` on `PATH`."
+        },
+        "mobile-device-manager.android.rootPath": {
+          "type": "string",
+          "default": "/sdcard",
+          "markdownDescription": "Folder shown under each Android device and opened by **Open in Explorer**. `/sdcard` is the shared internal storage; `/` shows the whole file system (most of it needs root)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run check && npm run build -- --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc -p ./ --noEmit",
+    "typecheck": "tsc -p ./ --noEmit && tsc -p tsconfig.test.json",
+    "check": "npm run typecheck",
+    "test": "node esbuild.test.js && node --test out/test/*.test.js",
+    "package": "vsce package --no-dependencies",
+    "package:list": "vsce ls --no-dependencies",
+    "lint": "tsc -p ./ --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "~1.95.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  }
+}
